@@ -403,10 +403,6 @@ class Menu extends React.Component<MenuProps, MenuState> {
         'collapsedWidth',
         'siderCollapsed',
         'defaultMotions',
-        'onMouseEnter',
-        'onTransitionEnd',
-        'openAnimation',
-        'openTransitionName',
       ]),
     };
     const mode = this.getRealMenuMode();
@@ -424,6 +420,9 @@ class Menu extends React.Component<MenuProps, MenuState> {
       parentMenu: this,
       motion: getMotion(this.props, this.state, mode),
     };
+
+    delete props.openAnimation;
+    delete props.openTransitionName;
 
     return (
       <Provider store={this.store}>
