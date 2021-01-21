@@ -2,12 +2,13 @@ import * as React from 'react';
 import { Provider, create } from 'mini-store';
 import omit from 'rc-util/lib/omit';
 import { CSSMotionProps } from 'rc-motion';
-import SubPopupMenu, { getActiveKey } from './SubPopupMenu';
+import SubPopupMenu, { getActiveKey, SubPopupMenuProps } from './SubPopupMenu';
 import { noop } from './util';
 import {
   RenderIconType,
   SelectInfo,
   SelectEventHandler,
+  OpenEventHandler,
   DestroyEventHandler,
   MenuMode,
   OpenAnimation,
@@ -29,7 +30,7 @@ export interface MenuProps
   getPopupContainer?: (node: HTMLElement) => HTMLElement;
   onClick?: MenuClickEventHandler;
   onSelect?: SelectEventHandler;
-  onOpenChange?: (openKeys: React.Key[]) => void;
+  onOpenChange?: (openKeys: string[]) => void;
   onDeselect?: SelectEventHandler;
   onDestroy?: DestroyEventHandler;
   subMenuOpenDelay?: number;
@@ -259,7 +260,7 @@ class Menu extends React.Component<MenuProps, MenuState> {
     this.innerMenu.getWrappedInstance().onKeyDown(e, callback);
   };
 
-  onOpenChange = event => {
+  onOpenChange: OpenEventHandler = event => {
     const { props } = this;
     const openKeys = this.store.getState().openKeys.concat();
     let changed = false;
@@ -397,11 +398,15 @@ class Menu extends React.Component<MenuProps, MenuState> {
   }
 
   render() {
-    let props: MenuProps & { parentMenu?: Menu } = {
+    let props: SubPopupMenuProps = {
       ...omit(this.props, [
         'collapsedWidth',
         'siderCollapsed',
         'defaultMotions',
+        'onMouseEnter',
+        'onTransitionEnd',
+        'openAnimation',
+        'openTransitionName',
       ]),
     };
     const mode = this.getRealMenuMode();
@@ -416,18 +421,13 @@ class Menu extends React.Component<MenuProps, MenuState> {
       onOpenChange: this.onOpenChange,
       onDeselect: this.onDeselect,
       onSelect: this.onSelect,
-      onMouseEnter: this.onMouseEnter,
-      onTransitionEnd: this.onTransitionEnd,
       parentMenu: this,
       motion: getMotion(this.props, this.state, mode),
     };
 
-    delete props.openAnimation;
-    delete props.openTransitionName;
-
     return (
       <Provider store={this.store}>
-        <SubPopupMenu {...props as any} ref={this.setInnerMenu}>
+        <SubPopupMenu {...props} ref={this.setInnerMenu}>
           {this.props.children}
         </SubPopupMenu>
       </Provider>
